@@ -12,17 +12,26 @@ type Response struct {
 	StatusCode int    `json:"statusCode"`
 }
 
+var count int
+
 func handleRequest() (Response, error) {
 	log.Println("start handler")
 	defer log.Println("end handler")
 
+	count++
+	message := "Hello AWS Lambda"
+	for i := 0; i < count; i++ {
+		message = message + "!"
+	}
+
 	return Response{
-		Message:    "Hello AWS Lambda",
+		Message:    message,
 		StatusCode: http.StatusOK,
 	}, nil
 }
 
 func init() {
+	count = 0
 	log.Println("init function called")
 }
 

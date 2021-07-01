@@ -54,24 +54,25 @@ This is a base of the AWS Lambda function in Golang and deploys it as a containe
 3. Login to ECR
 
     ```bash
-    aws ecr get-login-password --region ap-northeast-1 \
+    AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text) \
+    && aws ecr get-login-password --region ap-northeast-1 \
     | docker login \
     --username AWS \
-    --password-stdin $(aws sts get-caller-identity \
-    --query 'Account' \
-    --output text).dkr.ecr.ap-northeast-1.amazonaws.com
+    --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-1.amazonaws.com
     ```
     
 4. Add image tag
 
     ```bash
-    docker tag base-of-lambda-container-image:latest ************.dkr.ecr.ap-northeast-1.amazonaws.com/base-of-lambda-container-image:latest
+    AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text) \
+    && docker tag base-of-lambda-container-image:latest ${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-1.amazonaws.com/base-of-lambda-container-image:latest
     ```
     
 5. Push to ECR repository
 
     ```bash
-    docker push ************.dkr.ecr.ap-northeast-1.amazonaws.com/base-of-lambda-container-image:latest
+    AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text) \
+    && docker push ${AWS_ACCOUNT_ID}.dkr.ecr.ap-northeast-1.amazonaws.com/base-of-lambda-container-image:latest
     ```
 
 6. Create Lambda Function from container image
@@ -83,7 +84,7 @@ This is a base of the AWS Lambda function in Golang and deploys it as a containe
     --code "ImageUri=<your-ecr-repository-uri>" \
     --timeout 30 \
     --role "<your-iam-role-arn>" \
-    --region "<your-region-code>"
+    --region ap-northeast-1
     ```
 
 7. Invoke function
