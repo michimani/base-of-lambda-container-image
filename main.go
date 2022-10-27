@@ -24,6 +24,8 @@ func handleRequest() (Response, error) {
 		message = message + "!"
 	}
 
+	log.Print(message)
+
 	return Response{
 		Message:    message,
 		StatusCode: http.StatusOK,
