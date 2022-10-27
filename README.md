@@ -113,7 +113,7 @@ This is a base of the AWS Lambda function in Golang and deploys it as a containe
 
     ```bash
     aws lambda update-function-code \
-    --function-name base-of-lambda-container-image
+    --function-name base-of-lambda-container-image \
     --image-uri "${AWS_ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com/base-of-lambda-container-image:latest"
     ```
 
