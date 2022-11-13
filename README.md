@@ -14,9 +14,18 @@ This is a base of the AWS Lambda function in Golang and deploys it as a containe
 
 2. Build the image for local
 
+    Use AWS base image.
+
     ```bash
     docker build -t base-of-lambda-container-image:local -f Dockerfile_local .
     ```
+    
+    Or, use alpine base image.
+    
+    ```bash
+    docker build -t base-of-lambda-container-image:local -f Dockerfile_alpine_local .
+    ```
+
 
 ## Run at local
 
@@ -32,10 +41,10 @@ This is a base of the AWS Lambda function in Golang and deploys it as a containe
 3. Invoke function
 
     ```bash
-    curl "http://localhost:9000/2015-03-31/functions/function/invocations"
+    curl 'http://localhost:9000/2015-03-31/functions/function/invocations'
     ```
 
-## Deploy to Lmabda
+## Deploy to Lambda
 
 1. Build the image for production
 
