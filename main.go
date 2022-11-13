@@ -8,17 +8,19 @@ import (
 	"os"
 
 	runtime "github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-lambda-go/lambdacontext"
 )
 
 type Response struct {
-	RequestID  string `json:"requestId"`
-	Message    string `json:"message"`
-	StatusCode int    `json:"statusCode"`
+	RequestIDFromRuntimeAPI string `json:"requestIdFromRuntimeAPI"`
+	RequestIDFromContext    string `json:"requestIdFromContext"`
+	Message                 string `json:"message"`
+	StatusCode              int    `json:"statusCode"`
 }
 
 var count int
 
-func handleRequest() (Response, error) {
+func handleRequest(ctx context.Context) (Response, error) {
 	log.Println("start handler")
 	defer log.Println("end handler")
 
@@ -29,17 +31,29 @@ func handleRequest() (Response, error) {
 	}
 	log.Printf("Message: %s", message)
 
+	// Get AWS Request ID from Lambda Runtime API.
 	client := new(http.Client)
-	requestID, err := getRequestID(client)
+	requestIDFromRuntimeAPI, err := getRequestID(client)
 	if err != nil {
 		log.Print(err.Error())
 	}
-	log.Printf("RequestID: %s", requestID)
+	log.Printf("RequestID from Runtime API: %s", requestIDFromRuntimeAPI)
+
+	// Get AWS Request ID from context.
+	requestIDFromContext := ""
+	lc, exists := lambdacontext.FromContext(ctx)
+	if !exists {
+		log.Print("Failed to get Lambda Context from context.")
+	} else {
+		requestIDFromContext = lc.AwsRequestID
+	}
+	log.Printf("RequestID from context: %s", requestIDFromContext)
 
 	return Response{
-		RequestID:  requestID,
-		Message:    message,
-		StatusCode: http.StatusOK,
+		RequestIDFromRuntimeAPI: requestIDFromRuntimeAPI,
+		RequestIDFromContext:    requestIDFromContext,
+		Message:                 message,
+		StatusCode:              http.StatusOK,
 	}, nil
 }
 
@@ -48,6 +62,7 @@ const (
 	runtimeRequestIDHeaderName = "Lambda-Runtime-Aws-Request-Id"
 )
 
+// getRequestID returns AWS Request ID from Lambda Runtime API
 func getRequestID(client *http.Client) (string, error) {
 	host := os.Getenv(runtimeAPIEnvKey)
 	if host == "" {
